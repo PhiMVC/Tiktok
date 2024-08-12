@@ -35,7 +35,7 @@ class VideoDetailViewModel @Inject constructor(
                loadVideo(videoId)
             }
            is VideoDetailAction.ToggleVideo ->{
-
+               toggleVideo()
            }
         }
     }
@@ -55,6 +55,19 @@ class VideoDetailViewModel @Inject constructor(
         val mediaItem = MediaItem.fromUri(uri)
         videoPlayer.setMediaItem(mediaItem)
         videoPlayer.play()
+    }
+
+    private  fun toggleVideo(){
+        if(videoPlayer.isLoading){
+           return;
+        }else{
+           if(videoPlayer.isPlaying) videoPlayer.pause() else videoPlayer.play()
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        videoPlayer.release()
     }
 }
 

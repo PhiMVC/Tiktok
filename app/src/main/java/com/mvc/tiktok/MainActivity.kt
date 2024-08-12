@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.mvc.tiktok.data.repositories.VideoRepository
 import com.mvc.tiktok.di.VideoPlayerModule
+import com.mvc.tiktok.ui.for_you.ListForYouVideoScreen
 import com.mvc.tiktok.ui.theme.TikTokTheme
 import com.mvc.tiktok.ui.video.MainVideoPlayer
 import com.mvc.tiktok.ui.video.VideoDetailViewModel
@@ -27,7 +28,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MainVideoPlayer(videoId = 1)
+                    ListForYouVideoScreen()
                 }
             }
         }
