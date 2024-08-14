@@ -1,11 +1,15 @@
 package com.mvc.tiktok.ui
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,11 +22,16 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -40,13 +49,35 @@ import kotlinx.coroutines.launch
 fun MainScreen() {
     val coroutineScope: CoroutineScope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = 3, initialPage = 1)
-    val scrollPage: (Boolean)-> Unit = {isForYou->
-    val page :Int = if(isForYou) 1 else 0
-        coroutineScope.launch {
-            pagerState.scrollToPage(page = page)
-
+    val scrollPage: (Boolean)-> Unit = { isForYou->
+             val page :Int = if(isForYou) 1 else 0
+             coroutineScope.launch {
+             pagerState.scrollToPage(page = page)
         }
     }
+    var isShowTabContent  : Boolean by remember {
+        mutableStateOf(true)
+    }
+
+    val toggleTabContent :(Boolean) -> Unit = { isShow: Boolean->
+      if(isShowTabContent != isShow){
+          isShowTabContent = isShow
+      }
+    }
+
+    LaunchedEffect(key1 = pagerState){
+        snapshotFlow {
+            pagerState.currentPage
+        }.collect(){page ->
+            if(page == 2){
+                toggleTabContent(false)
+            }else{
+                toggleTabContent(true)
+            }
+        }
+    }
+
+
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val(tabContentView, body ) = createRefs()
@@ -60,21 +91,30 @@ fun MainScreen() {
         }) {page ->
             when(page){
                 0 -> FollowingScreen()
+                1 -> ListForYouVideoScreen()
                 2 -> ProfileScreen()
-                else -> ListForYouVideoScreen()
             }
         }
-        TabContentView(
-            isTabSelectedIndex = pagerState.currentPage,
-            modifier = Modifier.constrainAs(tabContentView){
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-                end.linkTo(parent.end)
-                width = Dimension.fillToConstraints
-            }.background(color = Color.Blue),
-            onSelectedTab = {page->
-                scrollPage(page)
-            })
+
+            AnimatedVisibility(visible = isShowTabContent) {
+                TabContentView(
+                    isTabSelectedIndex = pagerState.currentPage,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .constrainAs(tabContentView) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            width = Dimension.fillToConstraints
+                        }
+                        ,
+                    onSelectedTab = {page->
+                        scrollPage(page)
+                    })
+            }
+
+
+
     }
 }
 
@@ -88,14 +128,17 @@ fun TabContentItemView(
     onSelectedTab:(isForYou: Boolean)->Unit
 ) {
     val alpha : Float = if (isSelected)  1f else 0.6f
-    val thickness : Dp = if (isSelected)  2.dp else 0.dp
-    Column(modifier = modifier.wrapContentSize(),
+
+    Column(modifier = modifier.wrapContentSize().clickable
+    { onSelectedTab(isForYou) },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = title,style = MaterialTheme.typography.h6.copy(color = Color.White.copy(alpha = alpha)))
         Spacer(modifier = Modifier.height(2.dp))
-        Divider(color = Color.White, thickness = thickness, modifier = Modifier.width(50.dp))
+        if(isSelected){
+            Divider(color = Color.White, thickness = 2.dp, modifier = Modifier.width(50.dp))
+        }
     }
 }
 

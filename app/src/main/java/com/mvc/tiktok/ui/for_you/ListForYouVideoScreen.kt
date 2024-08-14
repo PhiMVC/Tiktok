@@ -1,6 +1,5 @@
 package com.mvc.tiktok.ui.for_you
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,11 +15,16 @@ import com.mvc.tiktok.ui.video.VideoDetailViewModel
 @Composable
 fun ListForYouVideoScreen(modifier : Modifier = Modifier) {
     val pagerState = rememberPagerState(pageCount = 10)
-    VerticalPager(state = pagerState, dragEnabled = true) { videoId ->
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+    VerticalPager(
+        modifier = modifier.fillMaxSize(),
+        state = pagerState,
+        dragEnabled = true,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalAlignment = Alignment.CenterVertically) { videoId ->
+
             val viewModel : VideoDetailViewModel = hiltViewModel(key = videoId.toString())
             MainVideoPlayer(videoId = videoId, viewModel = viewModel )
-        }
+
     }
 
 }
