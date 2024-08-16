@@ -11,13 +11,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.BottomAppBar
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -32,12 +36,14 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.mvc.tiktok.R
 import com.mvc.tiktok.ui.following.FollowingScreen
 import com.mvc.tiktok.ui.for_you.ListForYouVideoScreen
 import com.mvc.tiktok.ui.user.ProfileScreen
@@ -77,24 +83,34 @@ fun MainScreen() {
         }
     }
 
-
-
-    ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val(tabContentView, body ) = createRefs()
-        HorizontalPager(state = pagerState, modifier = Modifier.constrainAs(body){
-            top.linkTo(parent.top)
-            bottom.linkTo(parent.bottom)
-            start.linkTo(parent.start)
-            end.linkTo(parent.end)
-            width = Dimension.fillToConstraints
-            height = Dimension.fillToConstraints
-        }) {page ->
-            when(page){
-                0 -> FollowingScreen()
-                1 -> ListForYouVideoScreen()
-                2 -> ProfileScreen()
-            }
+    Scaffold(
+        modifier = Modifier,
+        bottomBar =
+        {
+            TikTokBottomAppBar(
+                onOpenHome= {},
+                onAddVideo={},
+            )
         }
+        ){paddingValue ->
+        ConstraintLayout(
+            modifier = Modifier.fillMaxSize().padding(paddingValue)
+        ) {
+            val(tabContentView, body ) = createRefs()
+            HorizontalPager(state = pagerState, modifier = Modifier.constrainAs(body){
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+                width = Dimension.fillToConstraints
+                height = Dimension.fillToConstraints
+            }) {page ->
+                when(page){
+                    0 -> FollowingScreen()
+                    1 -> ListForYouVideoScreen()
+                    2 -> ProfileScreen()
+                }
+            }
 
             AnimatedVisibility(visible = isShowTabContent) {
                 TabContentView(
@@ -107,7 +123,7 @@ fun MainScreen() {
                             end.linkTo(parent.end)
                             width = Dimension.fillToConstraints
                         }
-                        ,
+                    ,
                     onSelectedTab = {page->
                         scrollPage(page)
                     })
@@ -115,6 +131,68 @@ fun MainScreen() {
 
 
 
+        }
+    }
+
+
+}
+
+@Composable
+fun TikTokBottomAppBar(
+    onOpenHome:()->Unit,
+    onAddVideo:()-> Unit,
+
+) {
+    BottomAppBar(
+        backgroundColor = Color.Black, contentColor = Color.White
+    ) {
+        BottomNavigationItem(
+            icon = {
+                   Icon(painterResource(id = R.drawable.ic_home),"Home")
+            },
+            label = {
+                    Text(text = "Home")
+            },
+            selected = true,
+            onClick = { /*TODO*/ })
+
+        BottomNavigationItem(
+            icon = {
+                Icon(painterResource(id = R.drawable.ic_now),"Friends")
+            },
+            label = {
+                Text(text = "Friends")
+            },
+            selected = false,
+            onClick = { /*TODO*/ })
+
+        BottomNavigationItem(
+            icon = {
+                Icon(painterResource(id = R.drawable.ic_add_video),"Add More Video")
+            },
+
+            selected = false,
+            onClick = { /*TODO*/ })
+
+        BottomNavigationItem(
+            icon = {
+                Icon(painterResource(id = R.drawable.ic_inbox),"Inbox Icon")
+            },
+            label = {
+                Text(text = "Inbox")
+            },
+            selected = false,
+            onClick = { /*TODO*/ })
+
+        BottomNavigationItem(
+            icon = {
+                Icon(painterResource(id = R.drawable.ic_profile),"Profile")
+            },
+            label = {
+                Text(text = "Profile")
+            },
+            selected = false,
+            onClick = { /*TODO*/ })
     }
 }
 
@@ -129,8 +207,10 @@ fun TabContentItemView(
 ) {
     val alpha : Float = if (isSelected)  1f else 0.6f
 
-    Column(modifier = modifier.wrapContentSize().clickable
-    { onSelectedTab(isForYou) },
+    Column(modifier = modifier
+        .wrapContentSize()
+        .clickable
+        { onSelectedTab(isForYou) },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

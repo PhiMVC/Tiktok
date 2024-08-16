@@ -3,7 +3,6 @@ package com.mvc.tiktok.ui.video
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -12,31 +11,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.VerticalPager
-import com.google.accompanist.pager.rememberPagerState
 import com.mvc.tiktok.designsystem.TiktokVideoPlayer
-import com.mvc.tiktok.ui.for_you.ListForYouVideoScreen
 import com.mvc.tiktok.ui.video.composables.SideBarView
 import com.mvc.tiktok.ui.video.composables.VideoInfoArea
 
 @UnstableApi
 @Composable
-fun MainVideoPlayer(videoId:Int,viewModel:VideoDetailViewModel) {
+fun VideoDetailScreen(videoId:Int,viewModel:VideoDetailViewModel) {
     val uiState = viewModel.uiState.collectAsState()
    if (uiState.value == VideoDetailUiState.Default){
       viewModel.handleAction(VideoDetailAction.LoadData(videoId))
    }
-   FirstVideoPlayer(uiState = uiState.value,player = viewModel.videoPlayer){
+   VideoDetailScreenHandleState(uiState = uiState.value,player = viewModel.videoPlayer){
       action-> viewModel.handleAction(action)
    }
 }
 @UnstableApi
 @Composable
-fun FirstVideoPlayer(
+fun VideoDetailScreenHandleState(
    uiState: VideoDetailUiState,
    player: Player,handleAction :(VideoDetailAction)-> Unit
 ) {
@@ -47,7 +41,7 @@ fun FirstVideoPlayer(
         }
      }
      is VideoDetailUiState.Success -> {
-        SecondVideoPlayer(player = player, handleAction = handleAction)
+        VideoDetailScreenSuccess(player = player, handleAction = handleAction)
      }
      else -> {
         Text(text = "error...")
@@ -57,7 +51,7 @@ fun FirstVideoPlayer(
 
 @UnstableApi
 @Composable
-fun SecondVideoPlayer(player: Player,handleAction :(VideoDetailAction)-> Unit) {
+fun VideoDetailScreenSuccess(player: Player,handleAction :(VideoDetailAction)-> Unit) {
 
    ConstraintLayout(modifier = Modifier
       .fillMaxSize()
